@@ -13,10 +13,10 @@ import kotlinx.android.synthetic.main.roomholder_registry_list_item.view.*
 /**
  * Created by Phuong Nguyen on 5/16/2018.
  */
-class HolderRegistryAdapter (val items : ArrayList<RoomHolder>, val context: Context) : RecyclerView.Adapter<HolderRegistryAdapter.ViewHolder>() {
+class HolderRegistryAdapter (val items : ArrayList<RoomHolder>,private val context: Context) : RecyclerView.Adapter<HolderRegistryAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int {
-        return items.size;
+        return items.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): HolderRegistryAdapter.ViewHolder {
@@ -24,14 +24,14 @@ class HolderRegistryAdapter (val items : ArrayList<RoomHolder>, val context: Con
     }
 
     override fun onBindViewHolder(holder: HolderRegistryAdapter.ViewHolder?, position: Int) {
-        holder?.tvHolderPartnerName?.text = items.get(position).fullName;
-        holder?.tvHolderPartnerPhone?.text = items.get(position).phoneNumber;
-        holder?.ivProfileImage?.setImageResource(items.get(position).image);
+        holder?.tvHolderPartnerName?.text = items[position].fullName
+        holder?.tvHolderPartnerPhone?.text = items[position].phoneNumber
+        holder?.ivProfileImage?.setImageResource(context.resources.getIdentifier(items[position].imageName, "drawable", context.packageName))
     }
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {
-        val tvHolderPartnerName = view.tv_holder_partner_name_label;
-        val tvHolderPartnerPhone = view.tv_holder_partner_phone_label;
-        val ivProfileImage = view.iv_partner_profile_image;
+        val tvHolderPartnerName = view.tv_holder_partner_name_label!!
+        val tvHolderPartnerPhone = view.tv_holder_partner_phone_label!!
+        val ivProfileImage = view.iv_partner_profile_image!!
     }
 }

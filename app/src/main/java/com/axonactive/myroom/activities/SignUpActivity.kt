@@ -1,6 +1,8 @@
 package com.axonactive.myroom.activities
 
-import android.content.Intent
+import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -11,9 +13,12 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import com.axonactive.myroom.R
 import com.axonactive.myroom.adapters.HolderRegistryAdapter
+import com.axonactive.myroom.adapters.ImageAdapter
+import com.axonactive.myroom.models.Room
 import com.axonactive.myroom.models.RoomHolder
 import com.axonactive.myroom.validation.Validator
 import com.rengwuxian.materialedittext.MaterialEditText
@@ -25,13 +30,20 @@ import kotlinx.android.synthetic.main.activity_sign_up.*
 
 class SignUpActivity : AppCompatActivity() {
 
-    var partners : ArrayList<RoomHolder> = ArrayList()
+    private var partners : ArrayList<RoomHolder> = ArrayList()
+    private var imgProfileName : String = "ic_placeholder"
+
+    private lateinit var etCustomerName : MaterialEditText
+    private lateinit var etCustomerPhone : MaterialEditText
+    private lateinit var etRoomName : MaterialEditText
+    private lateinit  var profileImage : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_sign_up)
         initializeActionBar()
+        initializeViewComponent()
         validation()
         addPartners()
         initializePartnerList()
@@ -39,26 +51,36 @@ class SignUpActivity : AppCompatActivity() {
 
     }
 
+    private fun initializeViewComponent() {
+        etCustomerName = findViewById<MaterialEditText>(R.id.id_customer_name)
+        etCustomerPhone = findViewById<MaterialEditText>(R.id.id_customer_phone)
+        etRoomName = findViewById<MaterialEditText>(R.id.id_room_name)
+        profileImage = findViewById(R.id.profile_image)
+
+    }
+
     private fun profileSelection() {
-        val imgProfile : ImageView = findViewById(R.id.profile_image);
+        val imgProfile : ImageView = findViewById(R.id.profile_image)
         val clickListener : View.OnClickListener = View.OnClickListener { view ->
             if (view.equals(imgProfile)) {
+                val imm : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
                 showSelectProfileImageDialog()
             }
-        };
-        imgProfile.setOnClickListener(clickListener);
+        }
+        imgProfile.setOnClickListener(clickListener)
     }
 
     private fun initializePartnerList() {
-        rv_holder_partner_list.layoutManager = LinearLayoutManager(this);
-        rv_holder_partner_list.adapter = HolderRegistryAdapter(partners, this);
+        rv_holder_partner_list.layoutManager = LinearLayoutManager(this)
+        rv_holder_partner_list.adapter = HolderRegistryAdapter(partners, this)
         rv_holder_partner_list.addItemDecoration(DividerItemDecoration(this, DividerItemDecoration.VERTICAL))
     }
 
     private fun addPartners() {
-        partners.add(RoomHolder("Nguyen Ho Phuong", "0902444505", R.drawable.boy))
-        partners.add(RoomHolder("Vu Thi Bich Tien", "01222696928", R.drawable.girl2))
-        partners.add(RoomHolder("Pham Thi Kim Phuong", "01248004441", R.drawable.girl4))
+        partners.add(RoomHolder("Nguyen Ho Phuong", "0902444505", "boy"))
+        partners.add(RoomHolder("Vu Thi Bich Tien", "01222696928", "girl2"))
+        partners.add(RoomHolder("Pham Thi Kim Phuong", "01248004441", "girl4"))
     }
 
     private fun initializeActionBar() {
@@ -74,24 +96,30 @@ class SignUpActivity : AppCompatActivity() {
         android.R.id.home -> {
             finish()
             true
-        };
+        }
         R.id.doneRegistry -> {
-            Toast.makeText(this, "Done!", Toast.LENGTH_LONG).show()
+            val room : Room = collectInformation()
+            Toast.makeText(this, room.roomName +
+                    " - " + room.holders[0].fullName +
+                    " - " + room.holders[0].phoneNumber +
+                    " - " + room.holders[0].imageName, Toast.LENGTH_LONG).show()
             true
         }
         else -> super.onOptionsItemSelected(item)
     }
 
+    private fun collectInformation() : Room {
+        val holders : ArrayList<RoomHolder> = ArrayList()
+        holders.add(RoomHolder(etCustomerName.text.toString(), etCustomerPhone.text.toString(), imgProfileName))
+        return Room(etRoomName.text.toString(), holders)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_on_registry_action_bar, menu);
-        return true;
+        menuInflater.inflate(R.menu.menu_on_registry_action_bar, menu)
+        return true
     }
 
     private fun validation() {
-        var etCustomerName = findViewById<MaterialEditText>(R.id.id_customer_name)
-        var etCustomerPhone = findViewById<MaterialEditText>(R.id.id_customer_phone)
-        var etRoomName = findViewById<MaterialEditText>(R.id.id_room_name)
-
         Validator.validateEmpty(etCustomerName, this)
         Validator.validateRegex(etCustomerPhone, this, "\\d+", "Invalid phone number!")
         Validator.validateEmpty(etRoomName, this)
@@ -99,21 +127,45 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun showSelectProfileImageDialog() {
-        var gridView : GridView = GridView(this);
-        var mList : ArrayList<Int> = ArrayList<Int>();
-        for (i in 1..10) {
-            mList.add(i);
+
+        val gridView : GridView = GridView(this)
+        val mList : ArrayList<Int> = initializeProfileList()
+
+        gridView.adapter = (ImageAdapter(this, mList))
+        gridView.numColumns = 5
+
+        val builder : AlertDialog.Builder = AlertDialog.Builder(this)
+        builder.setView(gridView)
+        builder.setTitle("Select profile image")
+        builder.setNeutralButton("Cancel", DialogInterface.OnClickListener() {dialog, _ ->
+            dialog.cancel()
+        })
+        val dialog : Dialog = builder.create()
+        dialog.show()
+
+        val clickListener : AdapterView.OnItemClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
+            profileImage.setImageResource(mList[i])
+            imgProfileName = resources.getResourceEntryName(mList[i])
+            dialog.dismiss()
         }
+        gridView.onItemClickListener = clickListener
 
-        gridView.adapter = (ArrayAdapter(this, android.R.layout.simple_list_item_1, mList));
-        gridView.numColumns = 5;
-        gridView.onItemClickListener = (AdapterView.OnItemClickListener { adapterView, view, position, id ->
-            Toast.makeText(this, position, Toast.LENGTH_LONG).show()
-        });
 
-        val builder : AlertDialog.Builder = AlertDialog.Builder(this);
-        builder.setView(gridView);
-        builder.setTitle("Goto");
-        builder.show();
     }
+
+    private fun initializeProfileList() : ArrayList<Int> {
+        val result : ArrayList<Int> = ArrayList<Int>()
+        result.add(R.drawable.boy)
+        result.add(R.drawable.boy1)
+        result.add(R.drawable.boy2)
+        result.add(R.drawable.boy3)
+        result.add(R.drawable.boy4)
+        result.add(R.drawable.girl)
+        result.add(R.drawable.girl1)
+        result.add(R.drawable.girl2)
+        result.add(R.drawable.girl3)
+        result.add(R.drawable.girl4)
+        return result
+    }
+
 }
