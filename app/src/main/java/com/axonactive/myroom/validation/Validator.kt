@@ -12,11 +12,24 @@ import com.rengwuxian.materialedittext.validation.RegexpValidator
 object Validator {
 
     fun validateEmpty(editText: MaterialEditText, parent : Context) {
-    editText.onFocusChangeListener = (View.OnFocusChangeListener { _ , hasFocus ->
-        if (!hasFocus && editText.text.trim().isBlank()) {
+        editText.onFocusChangeListener = (View.OnFocusChangeListener { _ , hasFocus ->
+            if (!hasFocus && editText.text.trim().isBlank()) {
                 editText.error = parent.resources.getString(R.string.field_cannot_empty)
             }
         })
+    }
+
+    fun hasError(editText: MaterialEditText) : Boolean {
+        return editText.error != null
+    }
+
+    fun validateBirthday(editText: MaterialEditText, regex : String, errorMsg: String) : Boolean {
+        if (editText.text.trim().isNotBlank()) {
+            if (editText.validateWith(RegexpValidator(errorMsg, regex))) {
+                return true
+            }
+        }
+        return false
     }
 
     fun validateRegex(editText: MaterialEditText, parent: Context, regex : String, errorMsg : String) {

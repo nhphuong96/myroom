@@ -18,6 +18,7 @@ import android.widget.*
 import com.axonactive.myroom.R
 import com.axonactive.myroom.adapters.HolderRegistryAdapter
 import com.axonactive.myroom.adapters.ImageAdapter
+import com.axonactive.myroom.core.Constants
 import com.axonactive.myroom.models.Room
 import com.axonactive.myroom.models.RoomHolder
 import com.axonactive.myroom.validation.Validator
@@ -37,6 +38,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var etCustomerPhone : MaterialEditText
     private lateinit var etRoomName : MaterialEditText
     private lateinit  var profileImage : ImageView
+    private lateinit var etCustomerBirthday : MaterialEditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,7 @@ class SignUpActivity : AppCompatActivity() {
         addPartners()
         initializePartnerList()
         profileSelection()
+        birthdaySetting()
 
     }
 
@@ -62,7 +65,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun profileSelection() {
         val imgProfile : ImageView = findViewById(R.id.profile_image)
         val clickListener : View.OnClickListener = View.OnClickListener { view ->
-            if (view.equals(imgProfile)) {
+            if (view == imgProfile) {
                 val imm : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
                 showSelectProfileImageDialog()
@@ -123,7 +126,6 @@ class SignUpActivity : AppCompatActivity() {
         Validator.validateEmpty(etCustomerName, this)
         Validator.validateRegex(etCustomerPhone, this, "\\d+", "Invalid phone number!")
         Validator.validateEmpty(etRoomName, this)
-
     }
 
     private fun showSelectProfileImageDialog() {
@@ -166,6 +168,46 @@ class SignUpActivity : AppCompatActivity() {
         result.add(R.drawable.girl3)
         result.add(R.drawable.girl4)
         return result
+    }
+
+    private fun birthdaySetting() {
+        val button : Button = findViewById<Button>(R.id.btnBirthdate)
+        button.setOnClickListener { _: View? ->
+            showBirthdayModifierDialog()
+        }
+    }
+
+    private fun showBirthdayModifierDialog() {
+        val builder : AlertDialog.Builder = AlertDialog.Builder(this)
+
+        builder.setView(R.layout.birthday_setting)
+        builder.setCancelable(false)
+        builder.setTitle("Update birthday")
+        builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialogInterface, i ->
+            dialogInterface.dismiss()
+        })
+        builder.setPositiveButton("Update", null)
+
+        val dialog : Dialog = builder.create()
+        dialog.setOnShowListener { dialogInterface ->
+
+            etCustomerBirthday = dialog.findViewById(R.id.id_customer_birthday)
+
+            val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            button.text = resources.getString(R.string.accept)
+            button.setOnClickListener { view: View? ->
+                if (Validator.validateBirthday(etCustomerBirthday, Constants.DATE_REGEX, "Invalid birthday format!")) {
+                    Toast.makeText(this, etCustomerBirthday.text.toString(), Toast.LENGTH_SHORT).show()
+                }
+                else {
+                    Toast.makeText(this, "Cai shit!", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        dialog.show()
+
+
+
     }
 
 }
