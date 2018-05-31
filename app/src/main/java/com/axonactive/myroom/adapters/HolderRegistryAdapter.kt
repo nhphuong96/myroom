@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.axonactive.myroom.R
 import com.axonactive.myroom.models.RoomHolder
-import kotlinx.android.synthetic.main.activity_sign_up.view.*
 import kotlinx.android.synthetic.main.roomholder_registry_list_item.view.*
 
 /**

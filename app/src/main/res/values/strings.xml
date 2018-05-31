@@ -1,16 +1,45 @@
 <resources>
     <string name="app_name">My Rooms</string>
-    <string name="setting">Setting</string>
-    <string name="name">Name</string>
-    <string name="input_customer_name">Customer\'s name</string>
-    <string name="input_customer_phone">Phone number</string>
-    <string name="input_room_name">Room\'s name</string>
-    <string name="input_customer_birthday">Birthday</string>
-    <string name="field_cannot_empty">This field cannot be empty!</string>
-    <string name="room_holder_partners_group_label">Partners</string>
-    <string name="room_holder_group_label">Room holder</string>
+    <!-- Button -->
     <string name="add">Add</string>
     <string name="add_more">Add More</string>
     <string name="accept">Accept</string>
     <string name="cancel">Cancel</string>
+    <string name="setting">Setting</string>
+    <string name="name">Name</string>
+    <string name="delete">Delete</string>
+    <string name="send">Send bill</string>
+
+    <!-- Input label -->
+    <string name="input_customer_name">Customer\'s name</string>
+    <string name="input_partner_name">Partner\'s name</string>
+    <string name="input_customer_phone">Phone number</string>
+    <string name="input_room_name">Room\'s name</string>
+    <string name="input_customer_birthday">Birthday</string>
+    <string name="input_id_card">ID Card</string>
+
+    <!-- Hint -->
+    <string name="input_room_name_hint">Input room name here...</string>
+    <string name="input_name_hint">Input name here...</string>
+    <string name="input_phone_hint">Input phone here...</string>
+    <string name="input_card_hint">Input card ID here...</string>
+    <string name="input_birthday_hint">Input birthday here...</string>
+
+
+    <!-- Label text view -->
+    <string name="room_holder_partners_group_label">Partners</string>
+    <string name="room_holder_group_label">Room holder</string>
+    <string name="no_data_available">There is nobody at current</string>
+    <string name="empty_list_message">Maybe you need someone to stay with</string>
+    <string name="add_them">Add them!</string>
+    <string name="have_not_paid">Have not paid yet</string>
+    <string name="paid">Already paid for bill</string>
+
+    <!-- Validation error -->
+    <string name="invalid_birthday">Invalid birthday format!</string>
+    <string name="field_cannot_empty">This field cannot be empty!</string>
+
+    <!-- -->
 </resources>
+
+

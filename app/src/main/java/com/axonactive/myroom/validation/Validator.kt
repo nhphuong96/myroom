@@ -19,15 +19,22 @@ object Validator {
         })
     }
 
-    fun hasError(editText: MaterialEditText) : Boolean {
-        return editText.error != null
+    fun isEmpty(editText: MaterialEditText, parent : Context) : Boolean {
+        if (editText.text.toString().isEmpty()) {
+            editText.error = parent.resources.getString(R.string.field_cannot_empty)
+            return true
+        }
+        return false
     }
 
-    fun validateBirthday(editText: MaterialEditText, regex : String, errorMsg: String) : Boolean {
+    fun validateBirthday(editText: MaterialEditText,parent : Context , regex : String, errorMsg: String) : Boolean {
         if (editText.text.trim().isNotBlank()) {
             if (editText.validateWith(RegexpValidator(errorMsg, regex))) {
                 return true
             }
+        }
+        else {
+            editText.error = parent.resources.getString(R.string.field_cannot_empty)
         }
         return false
     }

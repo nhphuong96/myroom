@@ -44,22 +44,24 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="4"
                     android:orientation="vertical"
-                    android:paddingLeft="20dp"
-                    android:paddingRight="20dp"
+                    android:paddingRight="10dp"
                     android:paddingTop="10dp">
 
                     <com.rengwuxian.materialedittext.MaterialEditText
                         android:id="@+id/id_room_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
                         android:ems="10"
-                        android:hint="@string/input_room_name"
+                        android:hint="@string/input_room_name_hint"
                         android:inputType="textPersonName"
                         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                         android:textSize="12sp"
                         app:met_floatingLabel="highlight"
                         app:met_floatingLabelText="@string/input_room_name"
+                        app:met_iconLeft="@drawable/ic_room"
+                        app:met_iconPadding="0dp"
+                        app:met_helperText="Ex: Phòng 1"
+                        app:met_helperTextAlwaysShown="true"
                         app:met_floatingLabelTextColor="@color/colorAccent"
                         app:met_floatingLabelTextSize="12sp" />
 
@@ -68,12 +70,15 @@
                         android:id="@+id/id_customer_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
                         android:ems="10"
-                        android:hint="@string/input_customer_name"
+                        android:hint="@string/input_name_hint"
                         android:inputType="textPersonName"
                         android:textSize="12sp"
                         app:met_floatingLabel="highlight"
+                        app:met_iconLeft="@drawable/ic_holder"
+                        app:met_iconPadding="0dp"
+                        app:met_helperText="Ex: Phuong Nguyen"
+                        app:met_helperTextAlwaysShown="true"
                         app:met_floatingLabelText="@string/input_customer_name"
                         app:met_floatingLabelTextColor="@color/colorPrimaryDark"
                         app:met_floatingLabelTextSize="12sp" />
@@ -84,11 +89,15 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:ems="10"
-                        android:hint="@string/input_customer_phone"
-                        android:inputType="textPersonName"
+                        android:hint="@string/input_phone_hint"
+                        android:inputType="number"
                         android:singleLine="false"
                         android:textSize="12sp"
+                        app:met_iconLeft="@drawable/ic_phone"
                         app:met_floatingLabel="highlight"
+                        app:met_iconPadding="0dp"
+                        app:met_helperText="Ex: 0902xxxxxx"
+                        app:met_helperTextAlwaysShown="true"
                         app:met_floatingLabelText="@string/input_customer_phone"
                         app:met_floatingLabelTextColor="@color/colorPrimaryDark"
                         app:met_floatingLabelTextSize="12sp" />
@@ -107,21 +116,12 @@
                         android:id="@+id/profile_image"
                         android:layout_width="100dp"
                         android:layout_height="100dp"
-                        android:layout_above="@+id/btnBirthdate"
                         android:layout_centerHorizontal="true"
-                        android:layout_marginBottom="15dp"
+                        android:layout_centerVertical="true"
                         android:src="@drawable/ic_placeholder"
                         app:civ_border_color="#000"
                         app:civ_border_width="2dp" />
 
-                    <Button
-                        android:id="@+id/btnBirthdate"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
-                        android:layout_centerHorizontal="true"
-                        android:text="24 tuổi"
-                        android:textAppearance="@style/TextAppearance.Compat.Notification.Title.Media" />
                 </RelativeLayout>
             </TableRow>
 
@@ -148,24 +148,39 @@
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/btn_add_partner_id"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:text="@string/add"
+                android:textSize="13sp"/>
 
         </RelativeLayout>
 
-
-        <android.support.v7.widget.RecyclerView
-
-            android:id="@+id/rv_holder_partner_list"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp" />
+            android:layout_height="match_parent">
 
-        <com.gc.materialdesign.views.ButtonFlat
-            android:id="@+id/btn_add_partner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#1E88E5"
-            android:text="@string/add_more" />
+            <com.axonactive.myroom.views.RecyclerViewSupportEmpty
+
+                android:id="@+id/rv_holder_partner_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp">
+
+            </com.axonactive.myroom.views.RecyclerViewSupportEmpty>
+
+            <include
+                android:id="@+id/empty_list_placeholder_id"
+                layout="@layout/empty_list_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 </ScrollView>
