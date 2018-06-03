@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp">
+
+
+    <com.rengwuxian.materialedittext.MaterialEditText
+        android:id="@+id/id_customer_birthday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Input birthday here..."
+        android:textSize="12sp"
+        android:inputType="date"
+        android:maxLines="1"
+        android:maxLength="10"
+        app:met_floatingLabel="highlight"
+        app:met_floatingLabelText="Birthday"
+        app:met_floatingLabelTextColor="@color/colorAccent"
+        app:met_floatingLabelTextSize="12sp"
+        app:met_helperText="Ex: 23/08/1965"
+        app:met_helperTextAlwaysShown="true"
+        app:met_iconLeft="@drawable/cake" />
+</LinearLayout>
