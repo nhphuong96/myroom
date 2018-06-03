@@ -4,6 +4,6 @@
     <item
         android:id="@+id/doneRegistry"
         app:showAsAction="always"
-        android:icon="@drawable/ic_done"
+        android:icon="@drawable/ic_done_white"
         />
 </menu>

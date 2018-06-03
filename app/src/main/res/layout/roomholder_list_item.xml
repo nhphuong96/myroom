@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_marginLeft="8dp"
     android:layout_marginRight="8dp"
-    android:layout_marginTop="4dp"
+    android:layout_marginTop="8dp"
     android:layout_marginBottom="4dp"
     app:cardUseCompatPadding="false"
     app:cardCornerRadius="3dp"
@@ -49,7 +49,7 @@
             android:textSize="10dp" />
 
         <TextView
-            android:id="@+id/tv_label"
+            android:id="@+id/tv_room_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/tv_holder_name"

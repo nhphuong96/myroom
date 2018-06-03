@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.AppCompatButton
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.Toolbar
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -25,7 +26,6 @@ import com.axonactive.myroom.models.Room
 import com.axonactive.myroom.models.RoomHolder
 import com.axonactive.myroom.utils.DateUtils
 import com.axonactive.myroom.validation.Validator
-import com.gc.materialdesign.views.ButtonFlat
 import com.rengwuxian.materialedittext.MaterialEditText
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.util.*
@@ -36,7 +36,6 @@ import android.view.LayoutInflater
 /**
  * Created by Phuong Nguyen on 5/13/2018.
  */
-
 class SignUpActivity : AppCompatActivity() {
 
     private var partners : ArrayList<RoomHolder> = ArrayList()
@@ -53,14 +52,13 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var etPartnerPhone : MaterialEditText
     private lateinit var etPartnerIdCard : MaterialEditText
     private lateinit var etPartnerBirthday : MaterialEditText
-//    private lateinit var partnerProfileImage : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_sign_up)
-        initializeActionBar()
         initializeViewComponent()
+        initializeActionBar()
         validation()
         addPartners()
         initializePartnerList()
@@ -100,11 +98,15 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun initializeActionBar() {
+        var toolbar : Toolbar = findViewById<Toolbar>(R.id.toolbar)
+        var title : TextView = toolbar.findViewById<TextView>(R.id.toolbar_title)
+        title.text = "Register"
+        title.textSize = 14f
+        setSupportActionBar(toolbar)
+        supportActionBar?.setHomeAsUpIndicator(ContextCompat.getDrawable(this, R.drawable.ic_backspace))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setDisplayShowTitleEnabled(true)
-        supportActionBar?.title = "Register"
-        supportActionBar?.subtitle = "Customer Information"
+        supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this, R.color.blue)))
     }
 
@@ -127,7 +129,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun collectInformation() : Room {
         val holders : ArrayList<RoomHolder> = ArrayList()
         holders.add(RoomHolder(etCustomerName.text.toString(), etCustomerPhone.text.toString(), imgProfileName, DateUtils.toSimpleDate(birthday), ""))
-        return Room(etRoomName.text.toString(), holders)
+        return Room(etRoomName.text.toString(),"", holders)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

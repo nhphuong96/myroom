@@ -19,6 +19,9 @@
         <activity android:name=".activities.SignUpActivity">
 
         </activity>
+        <activity android:name=".activities.RoomManagementActivity">
+
+        </activity>
     </application>
 
 </manifest>
