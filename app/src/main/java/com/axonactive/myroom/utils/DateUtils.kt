@@ -8,21 +8,22 @@ import java.util.*
  */
 object DateUtils {
     @JvmStatic
-    fun toSimpleDateString(date : Date) : String {
+    fun toSimpleDateString(date : Date?) : String {
         val format = SimpleDateFormat("dd/MM/yyyy")
         return format.format(date)
     }
 
     @JvmStatic
-    fun toSimpleDate(dateStr : String) : Date {
-        var date = Date(Long.MIN_VALUE)
-        try {
-            val format = SimpleDateFormat("dd/MM/yyyy")
-            date = format.parse(dateStr)
+    fun toSimpleDate(dateStr : String?) : Date? {
+        if (dateStr != null) {
+            try {
+                val format = SimpleDateFormat("dd/MM/yyyy")
+                return format.parse(dateStr)
+            }
+            catch (e : Exception) {
+                e.printStackTrace()
+            }
         }
-        catch (e : Exception) {
-            e.printStackTrace()
-        }
-        return date
+        return null
     }
 }

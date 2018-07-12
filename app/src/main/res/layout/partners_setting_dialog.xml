@@ -9,22 +9,34 @@
     android:paddingTop="10dp"
     android:paddingBottom="10dp">
 
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/partner_profile_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_placeholder"
+        app:civ_border_color="#000"
+        app:civ_border_width="2dp" />
+
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/partner_name_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/partner_profile_image"
         android:ems="10"
         android:hint="@string/input_name_hint"
         android:inputType="textPersonName"
         android:textSize="12sp"
         app:met_floatingLabel="highlight"
         app:met_floatingLabelText="@string/input_partner_name"
-        app:met_helperText="Tony Stark"
-        app:met_iconLeft="@drawable/ic_partner"
-        app:met_helperTextAlwaysShown="true"
-        app:met_iconPadding="0dp"
         app:met_floatingLabelTextColor="@color/colorPrimaryDark"
-        app:met_floatingLabelTextSize="12sp"/>
+        app:met_floatingLabelTextSize="12sp"
+        app:met_helperText="Tony Stark"
+        app:met_helperTextAlwaysShown="true"
+        app:met_iconLeft="@drawable/ic_partner"
+        app:met_iconPadding="0dp" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/partner_phone_id"
@@ -41,10 +53,10 @@
         app:met_floatingLabelText="@string/input_customer_phone"
         app:met_floatingLabelTextColor="@color/colorPrimaryDark"
         app:met_floatingLabelTextSize="12sp"
-        app:met_iconPadding="0dp"
-        app:met_iconLeft="@drawable/ic_phone"
         app:met_helperText="0902xxxxxx"
-        app:met_helperTextAlwaysShown="true"/>
+        app:met_helperTextAlwaysShown="true"
+        app:met_iconLeft="@drawable/ic_phone"
+        app:met_iconPadding="0dp" />
 
     <com.rengwuxian.materialedittext.MaterialEditText
         android:id="@+id/partner_card_id"

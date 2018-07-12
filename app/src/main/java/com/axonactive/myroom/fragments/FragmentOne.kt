@@ -33,7 +33,6 @@ class FragmentOne : Fragment() {
         val gridView : GridView = view.findViewById<GridView>(R.id.gv_room_attributes)
         gridView.numColumns = 3
         gridView.adapter = (AttributeAdapter(this.activity, attributes))
-
         return view
     }
 

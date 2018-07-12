@@ -5,11 +5,12 @@ import java.util.*
 /**
  * Created by Phuong Nguyen on 5/16/2018.
  */
-data class RoomHolder(var fullName: String,
+data class RoomHolder(var holderId : Long?,
+                        var fullName: String,
                       var phoneNumber: String,
-                      var imageName : String,
-                      var birthday : Date,
-                      var idCard : String)
+                      var imageName : String?,
+                      var birthday : Date?,
+                      var idCard : String?)
 {
 
 }

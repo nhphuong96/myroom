@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/holder_management_profile_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_placeholder"
+        app:civ_border_color="#000"
+        app:civ_border_width="2dp" />
+
+    <TextView
+        android:id="@+id/holder_management_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignStart="@+id/imageView2"
+        android:text="Phuong"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/holder_management_phone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/holder_management_name"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/holder_management_profile_image"
+        android:text="01222696928"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="15sp"
+        android:layout_height="15sp"
+        android:layout_alignBottom="@+id/holder_management_phone"
+        android:layout_marginStart="16dp"
+        android:layout_toEndOf="@+id/holder_management_profile_image"
+        android:background="#fff"
+        android:alpha="0.5"
+        app:srcCompat="@drawable/ic_phone" />
+
+
+</RelativeLayout>

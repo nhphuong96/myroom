@@ -3,13 +3,11 @@ package com.axonactive.myroom.activities
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatButton
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
@@ -22,15 +20,14 @@ import com.axonactive.myroom.R
 import com.axonactive.myroom.adapters.HolderRegistryAdapter
 import com.axonactive.myroom.adapters.ImageAdapter
 import com.axonactive.myroom.core.Constants
-import com.axonactive.myroom.models.Room
 import com.axonactive.myroom.models.RoomHolder
 import com.axonactive.myroom.utils.DateUtils
 import com.axonactive.myroom.validation.Validator
 import com.rengwuxian.materialedittext.MaterialEditText
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.util.*
-import android.view.LayoutInflater
-
+import com.axonactive.myroom.db.DatabaseHelper
+import com.axonactive.myroom.utils.RoomStatus
 
 
 /**
@@ -38,20 +35,22 @@ import android.view.LayoutInflater
  */
 class SignUpActivity : AppCompatActivity() {
 
+    private val db = DatabaseHelper(this)
+
     private var partners : ArrayList<RoomHolder> = ArrayList()
-    private var imgProfileName : String = "ic_placeholder"
-    private lateinit var birthday : String
 
     private lateinit var etCustomerName : MaterialEditText
     private lateinit var etCustomerPhone : MaterialEditText
     private lateinit var etRoomName : MaterialEditText
-    private lateinit var etCustomerBirthday : MaterialEditText
     private lateinit  var profileImage : ImageView
+    private var imgProfileName : String = "ic_placeholder"
 
     private lateinit var etPartnerName : MaterialEditText
     private lateinit var etPartnerPhone : MaterialEditText
     private lateinit var etPartnerIdCard : MaterialEditText
     private lateinit var etPartnerBirthday : MaterialEditText
+    private var partnerProfileImageName : String = "ic_placeholder"
+    private lateinit var partnerProfileImg : ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +79,7 @@ class SignUpActivity : AppCompatActivity() {
             if (view == imgProfile) {
                 val imm : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
-                showSelectProfileImageDialog()
+                showSelectProfileImageDialog(true)
             }
         }
         imgProfile.setOnClickListener(clickListener)
@@ -119,17 +118,33 @@ class SignUpActivity : AppCompatActivity() {
             if (!Validator.isEmpty(etRoomName, this)
                 && !Validator.isEmpty(etCustomerName, this)
                 && !Validator.isEmpty(etCustomerPhone, this)) {
-                Toast.makeText(this, "Created room " +  etRoomName.text.toString() + " successfully!", Toast.LENGTH_LONG).show()
+                val room = com.axonactive.myroom.db.model.Room(null, etRoomName.text.toString(), RoomStatus.INIT)
+                val roomId : Long = db.createRoom(room)
+                if (roomId != null) {
+                    val holder = com.axonactive.myroom.db.model.Holder(null, etCustomerName.text.toString(),
+                            etCustomerPhone.text.toString(),
+                            null, null, null, imgProfileName, null, roomId)
+
+                    if (db.createHolder(holder) != null) {
+                        for (partner in partners) {
+                            val partner = com.axonactive.myroom.db.model.Holder(null, partner.fullName,
+                                    partner.phoneNumber, partner.idCard, partner.birthday, null, null, null, roomId)
+                            if (db.createHolder(partner) == null) {
+                                Toast.makeText(this, String.format(resources.getString(R.string.created_partner_unsuccessfully), partner.fullName), Toast.LENGTH_LONG).show()
+                                break
+                            }
+                        }
+                        Toast.makeText(this, String.format(resources.getString(R.string.created_room_successful), etRoomName.text.toString()), Toast.LENGTH_LONG).show()
+                        finish()
+                    }
+                }
+
+
+
             }
             true
         }
         else -> super.onOptionsItemSelected(item)
-    }
-
-    private fun collectInformation() : Room {
-        val holders : ArrayList<RoomHolder> = ArrayList()
-        holders.add(RoomHolder(etCustomerName.text.toString(), etCustomerPhone.text.toString(), imgProfileName, DateUtils.toSimpleDate(birthday), ""))
-        return Room(etRoomName.text.toString(),"", holders)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -143,7 +158,7 @@ class SignUpActivity : AppCompatActivity() {
         Validator.validateEmpty(etRoomName, this)
     }
 
-    private fun showSelectProfileImageDialog() {
+    private fun showSelectProfileImageDialog(isMainHolder : Boolean) {
 
         val gridView = GridView(this)
         val mList : ArrayList<Int> = initializeProfileList()
@@ -161,8 +176,15 @@ class SignUpActivity : AppCompatActivity() {
         dialog.show()
 
         val clickListener : AdapterView.OnItemClickListener = AdapterView.OnItemClickListener { _, _, i, _ ->
-            profileImage.setImageResource(mList[i])
-            imgProfileName = resources.getResourceEntryName(mList[i])
+            if (isMainHolder) {
+                profileImage.setImageResource(mList[i])
+                imgProfileName = resources.getResourceEntryName(mList[i])
+            }
+            else {
+                partnerProfileImg.setImageResource(mList[i])
+                partnerProfileImageName = resources.getResourceEntryName(mList[i])
+            }
+
             dialog.dismiss()
         }
         gridView.onItemClickListener = clickListener
@@ -185,31 +207,31 @@ class SignUpActivity : AppCompatActivity() {
         return result
     }
 
-    private fun showBirthdayModifierDialog() {
-        val builder : AlertDialog.Builder = AlertDialog.Builder(this)
-
-        builder.setView(R.layout.birthday_setting_dialog)
-        builder.setCancelable(false)
-        builder.setTitle("Update birthday")
-        builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialogInterface, _ ->
-            dialogInterface.dismiss()
-        })
-        builder.setPositiveButton("Update", null)
-
-        val dialog : Dialog = builder.create()
-        dialog.setOnShowListener { _ ->
-            etCustomerBirthday = dialog.findViewById(R.id.id_customer_birthday)
-            val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-            button.text = resources.getString(R.string.accept)
-            button.setOnClickListener { _: View? ->
-                if (Validator.validateBirthday(etCustomerBirthday, this ,Constants.DATE_REGEX, "Invalid birthday format!")) {
-                    birthday = etCustomerBirthday.text.toString()
-                    dialog.dismiss()
-                }
-            }
-        }
-        dialog.show()
-    }
+//    private fun showBirthdayModifierDialog() {
+//        val builder : AlertDialog.Builder = AlertDialog.Builder(this)
+//
+//        builder.setView(R.layout.birthday_setting_dialog)
+//        builder.setCancelable(false)
+//        builder.setTitle("Update birthday")
+//        builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialogInterface, _ ->
+//            dialogInterface.dismiss()
+//        })
+//        builder.setPositiveButton("Update", null)
+//
+//        val dialog : Dialog = builder.create()
+//        dialog.setOnShowListener { _ ->
+//            etCustomerBirthday = dialog.findViewById(R.id.id_customer_birthday)
+//            val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+//            button.text = resources.getString(R.string.accept)
+//            button.setOnClickListener { _: View? ->
+//                if (Validator.validateBirthday(etCustomerBirthday, this ,Constants.DATE_REGEX, "Invalid birthday format!")) {
+//                    birthday = etCustomerBirthday.text.toString()
+//                    dialog.dismiss()
+//                }
+//            }
+//        }
+//        dialog.show()
+//    }
 
     private fun addMoreSelection() {
         val btnAddMore : Button = findViewById(R.id.btn_add_partner_id)
@@ -234,18 +256,32 @@ class SignUpActivity : AppCompatActivity() {
             etPartnerPhone = dialog.findViewById(R.id.partner_phone_id)
             etPartnerIdCard = dialog.findViewById(R.id.partner_card_id)
             etPartnerBirthday = dialog.findViewById(R.id.partner_birthday_id)
+            partnerProfileImg = dialog.findViewById(R.id.partner_profile_image)
+            val clickListener : View.OnClickListener = View.OnClickListener { view ->
+                if (view == partnerProfileImg) {
+                    val imm : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(view.windowToken, 0)
+                    showSelectProfileImageDialog(false)
+                }
+            }
+            partnerProfileImg.setOnClickListener(clickListener)
+
             val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
             button.text = resources.getString(R.string.add)
             button.setOnClickListener { _ : View? ->
-                if (!Validator.isEmpty(etPartnerName,this) &&
-                        !Validator.isEmpty(etPartnerPhone, this) &&
-                        !Validator.isEmpty(etPartnerIdCard, this) &&
-                        Validator.validateBirthday(etPartnerBirthday, this, Constants.DATE_REGEX, resources.getString(R.string.invalid_birthday))) {
-                    val partner = RoomHolder(etPartnerName.text.toString(),
-                                                          etPartnerPhone.text.toString(),
-                                                          "ic_placeholder",
-                                                          Date(),
-                                                          etPartnerIdCard.text.toString())
+                if (!Validator.isEmpty(etPartnerName,this) && !Validator.isEmpty(etPartnerPhone, this)) {
+                    var birthdate : String? = null
+                    if (etPartnerBirthday.text.isNotBlank()) {
+                        if (!Validator.validateBirthday(etPartnerBirthday, this, Constants.DATE_REGEX, resources.getString(R.string.invalid_birthday))) {
+                            birthdate = etPartnerBirthday.text.toString()
+                        }
+                    }
+                    val partner = RoomHolder(null,
+                            etPartnerName.text.toString(),
+                            etPartnerPhone.text.toString(),
+                            partnerProfileImageName,
+                            DateUtils.toSimpleDate(birthdate),
+                            etPartnerIdCard.text.toString())
                     partners.add(partner)
                     Toast.makeText(this, "Added partner successfully!", Toast.LENGTH_SHORT).show()
                     rv_holder_partner_list.adapter.notifyDataSetChanged()

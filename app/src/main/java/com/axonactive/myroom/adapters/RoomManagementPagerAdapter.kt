@@ -1,5 +1,7 @@
 package com.axonactive.myroom.adapters
 
+import android.app.Activity
+import android.content.Context
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
@@ -10,7 +12,7 @@ import com.axonactive.myroom.fragments.FragmentTwo
 /**
  * Created by Phuong Nguyen on 6/1/2018.
  */
-class RoomManagementPagerAdapter(fragmentManager : FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+class RoomManagementPagerAdapter(fragmentManager : FragmentManager,val context : Context) : FragmentPagerAdapter(fragmentManager) {
 
     override fun getItem(position: Int): Fragment? = when (position) {
         0 -> FragmentOne.newInstance()

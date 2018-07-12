@@ -26,6 +26,7 @@ class HolderRegistryAdapter (val items : ArrayList<RoomHolder>,private val conte
         holder?.tvHolderPartnerName?.text = items[position].fullName
         holder?.tvHolderPartnerPhone?.text = items[position].phoneNumber
         holder?.ivProfileImage?.setImageResource(context.resources.getIdentifier(items[position].imageName, "drawable", context.packageName))
+
     }
 
     class ViewHolder(view : View) : RecyclerView.ViewHolder(view) {

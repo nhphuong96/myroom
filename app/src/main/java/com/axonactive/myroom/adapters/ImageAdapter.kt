@@ -24,7 +24,7 @@ class ImageAdapter(private var context: Context, private var imageId : ArrayList
         if (convertView == null) {
             grid = inflater.inflate(R.layout.profile_image_list_item, null)
             val viewHolder : ViewHolder = ViewHolder(grid)
-            viewHolder.imgView.setImageResource(imageId.get(position))
+            viewHolder.imgView.setImageResource(imageId[position])
         }
         else {
             grid = convertView

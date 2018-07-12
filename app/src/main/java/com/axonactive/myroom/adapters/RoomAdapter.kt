@@ -3,7 +3,6 @@ package com.axonactive.myroom.adapters
 import android.content.Context
 import android.content.Intent
 import android.support.v4.content.ContextCompat
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -30,23 +29,32 @@ class RoomAdapter (private val items : ArrayList<Room>,
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.roomholder_list_item, parent, false), context)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        holder?.tvRoomType?.text = items[position].roomName
-        holder?.tvHolderName?.text = items[position].holders[0].fullName
+    override fun onBindViewHolder(viewHolder: ViewHolder?, position: Int) {
+        viewHolder?.tvRoomType?.text = items[position].roomName
         if (context.resources.getString(R.string.have_not_paid).equals(items[position].roomStatus)) {
-            holder?.tvStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.red))
+            viewHolder?.tvStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.red))
         }
         else if (context.resources.getString(R.string.paid).equals(items[position].roomStatus)) {
-            holder?.tvStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.green))
+            viewHolder?.tvStatus?.setBackgroundColor(ContextCompat.getColor(context, R.color.green))
         }
-        holder?.tvStatus?.text = items[position].roomStatus
-        holder?.tvTotal?.text = context.resources.getString(R.string.holders_count, items[position].holders.size)
-        holder?.imgRoomHolder?.setImageResource(context.resources.getIdentifier(items[position].holders[0].imageName,
-                "drawable", context.packageName))
+        viewHolder?.tvStatus?.text = items[position].roomStatus
 
-        holder?.raView?.setOnClickListener { view ->
+        if (items[position].holders.isNotEmpty()) {
+            viewHolder?.tvHolderName?.text = items[position].holders[0].fullName
+            viewHolder?.tvTotal?.text = context.resources.getString(R.string.holders_count, items[position].holders.size)
+            viewHolder?.imgRoomHolder?.setImageResource(context.resources.getIdentifier(items[position].holders[0].imageName,
+                    "drawable", context.packageName))
+        }
+        else {
+            viewHolder?.tvHolderName?.text = "Room is empty"
+            viewHolder?.tvTotal?.text = "0"
+            viewHolder?.imgRoomHolder?.setImageResource(context.resources.getIdentifier("ic_placeholder", "drawable", context.packageName))
+        }
+
+        viewHolder?.raView?.setOnClickListener { view ->
             val intent = Intent(context, RoomManagementActivity::class.java)
-            intent.putExtra(Constants.ROOM_NAME_EXTRA, holder?.tvRoomType.text.toString())
+            intent.putExtra(Constants.ROOM_NAME_EXTRA, viewHolder?.tvRoomType.text.toString())
+            intent.putExtra(Constants.ROOM_ID_EXTRA, items[position].roomId)
             context.startActivity(intent)
         }
     }

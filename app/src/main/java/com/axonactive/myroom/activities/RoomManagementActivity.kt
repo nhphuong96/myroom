@@ -31,7 +31,7 @@ class RoomManagementActivity : AppCompatActivity() {
     private fun initViewPager() {
         val tabLayout : TabLayout = findViewById(R.id.tab_layout)
         val viewPager : ViewPager = findViewById(R.id.viewpager)
-        val adapter = RoomManagementPagerAdapter(supportFragmentManager)
+        val adapter = RoomManagementPagerAdapter(supportFragmentManager, this)
 
         viewPager.adapter = adapter
         tabLayout.setupWithViewPager(viewPager)

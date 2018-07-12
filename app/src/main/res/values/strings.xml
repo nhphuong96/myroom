@@ -6,6 +6,7 @@
     <string name="accept">Accept</string>
     <string name="cancel">Cancel</string>
     <string name="setting">Setting</string>
+    <string name="update">Update</string>
     <string name="name">Name</string>
     <string name="delete">Delete</string>
     <string name="send">Send bill</string>
@@ -17,13 +18,15 @@
     <string name="input_room_name">Room\'s name</string>
     <string name="input_customer_birthday">Birthday</string>
     <string name="input_id_card">ID Card</string>
+    <string name="input_cost"></string>
 
     <!-- Hint -->
     <string name="input_room_name_hint">Input room name here...</string>
     <string name="input_name_hint">Input name here...</string>
     <string name="input_phone_hint">Input phone here...</string>
-    <string name="input_card_hint">Input card ID here...</string>
-    <string name="input_birthday_hint">Input birthday here...</string>
+    <string name="input_card_hint">Input card ID here (Optional)...</string>
+    <string name="input_birthday_hint">Input birthday here (Optional) ...</string>
+    <string name="input_cost_hint">Input cost here...</string>
 
     <!-- Label text view -->
     <string name="room_holder_partners_group_label">Partners</string>
@@ -39,7 +42,9 @@
     <string name="invalid_birthday">Invalid birthday format!</string>
     <string name="field_cannot_empty">This field cannot be empty!</string>
 
-    <!-- -->
+    <!-- Message -->
+    <string name="created_room_successful">Created room \'%1$s\' successfully!</string>
+    <string name="created_partner_unsuccessfully">Cannot create partner \'%1$s\'</string>
 </resources>
 
 
