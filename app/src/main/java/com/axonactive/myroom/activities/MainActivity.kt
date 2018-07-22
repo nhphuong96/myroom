@@ -62,7 +62,8 @@ class MainActivity : AppCompatActivity() {
             val holders = db.getHolderByRoomId(roomsInDb[i].roomId)
             var roomHoldersView : ArrayList<RoomHolder> = ArrayList<RoomHolder>()
             for (holder in holders) {
-                val roomHolder = RoomHolder(holder.holderId!!, holder.fullName, holder.phoneNumber, holder.profileImage, holder.birthDate, holder.idCard)
+                val roomHolder = RoomHolder(holder.holderId!!, holder.fullName, holder.phoneNumber, holder.profileImage, holder.birthDate, holder.idCard,
+                        holder.isOwner)
                 roomHoldersView.add(roomHolder)
             }
             rooms.add(Room(roomsInDb[i].roomId!! ,roomsInDb[i].roomName, roomsInDb[i].paymentStatus , roomHoldersView))
@@ -80,4 +81,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowTitleEnabled(false)
         supportActionBar?.setBackgroundDrawable(ColorDrawable(ContextCompat.getColor(this, R.color.blue)))
     }
+
+
 }

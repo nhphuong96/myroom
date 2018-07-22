@@ -4,14 +4,25 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
     android:padding="10dp">
 
+
+    <ImageView
+        android:id="@+id/is_main"
+        android:layout_width="25sp"
+        android:layout_height="25sp"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="5dp"
+
+        app:srcCompat="@drawable/icon_star" />
 
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/holder_management_profile_image"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:layout_alignParentStart="true"
+        android:layout_marginLeft="35dp"
         android:layout_alignParentTop="true"
         android:src="@drawable/ic_placeholder"
         app:civ_border_color="#000"
@@ -22,6 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:textStyle="bold"
         android:layout_alignParentTop="true"
         android:layout_alignStart="@+id/imageView2"
         android:text="Phuong"
@@ -32,9 +44,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/holder_management_name"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="5dp"
-        android:layout_toEndOf="@+id/holder_management_profile_image"
+        android:layout_marginStart="10dp"
+        android:layout_toEndOf="@+id/imageView2"
         android:text="01222696928"
         android:textSize="12sp" />
 
@@ -44,8 +56,9 @@
         android:layout_height="15sp"
         android:layout_alignBottom="@+id/holder_management_phone"
         android:layout_marginStart="16dp"
+        android:layout_marginRight="20dp"
         android:layout_toEndOf="@+id/holder_management_profile_image"
-        android:background="#fff"
+        android:background="@null"
         android:alpha="0.5"
         app:srcCompat="@drawable/ic_phone" />
 

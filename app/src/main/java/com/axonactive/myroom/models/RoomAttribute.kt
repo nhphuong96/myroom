@@ -1,8 +1,10 @@
 package com.axonactive.myroom.models
 
+import com.axonactive.myroom.db.model.Attribute
+
 /**
- * Created by Phuong Nguyen on 6/3/2018.
+ * Created by Phuong Nguyen on 7/22/2018.
  */
-class RoomAttribute(var title: String, var iconStr : String) {
+class RoomAttribute(var roomId : Long, var attributes : ArrayList<Attribute>) {
 
 }

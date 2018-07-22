@@ -29,9 +29,7 @@ object Validator {
 
     fun validateBirthday(editText: MaterialEditText,parent : Context , regex : String, errorMsg: String) : Boolean {
         if (editText.text.trim().isNotBlank()) {
-            if (editText.validateWith(RegexpValidator(errorMsg, regex))) {
-                return true
-            }
+            return editText.validateWith(RegexpValidator(errorMsg, regex))
         }
         else {
             editText.error = parent.resources.getString(R.string.field_cannot_empty)

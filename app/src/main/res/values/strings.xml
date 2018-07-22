@@ -10,6 +10,9 @@
     <string name="name">Name</string>
     <string name="delete">Delete</string>
     <string name="send">Send bill</string>
+    <string name="save">Save</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <!-- Input label -->
     <string name="input_customer_name">Customer\'s name</string>
@@ -44,7 +47,10 @@
 
     <!-- Message -->
     <string name="created_room_successful">Created room \'%1$s\' successfully!</string>
+    <string name="deleted_room_successful">Removed room \'%1$s\' successfully!</string>
+    <string name="deleted_room_failed">Error occurred while deleting room \'%1$s\'</string>
     <string name="created_partner_unsuccessfully">Cannot create partner \'%1$s\'</string>
+    <string name="created_attribute_unsuccessfully">Cannot create attribute \'%1$s\'</string>
 </resources>
 
 

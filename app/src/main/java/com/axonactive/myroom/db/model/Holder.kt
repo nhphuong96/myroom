@@ -15,8 +15,18 @@ class Holder {
     var profileImage : String?
     var roomId : Long? = null
     var createdAt: String?
+    var isOwner : Int
 
-    constructor(holderId: Long?, fName : String, pNumber : String, idCard : String?, bDate: Date?, add : String?, pImage : String?, createdAt : String?, roomId : Long) {
+    constructor(holderId: Long?,
+                fName : String,
+                pNumber : String,
+                idCard : String?,
+                bDate: Date?,
+                add : String?,
+                pImage : String?,
+                createdAt : String?,
+                roomId : Long,
+                isOwner: Int) {
         this.holderId = holderId
         this.fullName = fName
         this.phoneNumber = pNumber
@@ -26,5 +36,6 @@ class Holder {
         this.profileImage = pImage
         this.createdAt = createdAt
         this.roomId = roomId
+        this.isOwner= isOwner
     }
 }

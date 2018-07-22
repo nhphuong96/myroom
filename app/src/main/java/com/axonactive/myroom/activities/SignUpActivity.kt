@@ -8,9 +8,9 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.DividerItemDecoration
-import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.*
 import android.support.v7.widget.Toolbar
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -28,6 +28,7 @@ import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.util.*
 import com.axonactive.myroom.db.DatabaseHelper
 import com.axonactive.myroom.utils.RoomStatus
+import es.dmoral.toasty.Toasty
 
 
 /**
@@ -44,6 +45,8 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var etRoomName : MaterialEditText
     private lateinit  var profileImage : ImageView
     private var imgProfileName : String = "ic_placeholder"
+
+    private lateinit var btnAddMore : Button
 
     private lateinit var etPartnerName : MaterialEditText
     private lateinit var etPartnerPhone : MaterialEditText
@@ -71,6 +74,7 @@ class SignUpActivity : AppCompatActivity() {
         etCustomerPhone = findViewById<MaterialEditText>(R.id.id_customer_phone)
         etRoomName = findViewById<MaterialEditText>(R.id.id_room_name)
         profileImage = findViewById(R.id.profile_image)
+        btnAddMore = findViewById(com.axonactive.myroom.R.id.btn_add_partner_id)
     }
 
     private fun profileSelection() {
@@ -121,22 +125,30 @@ class SignUpActivity : AppCompatActivity() {
                 val room = com.axonactive.myroom.db.model.Room(null, etRoomName.text.toString(), RoomStatus.INIT)
                 val roomId : Long = db.createRoom(room)
                 if (roomId != null) {
+                    //Create room holder
                     val holder = com.axonactive.myroom.db.model.Holder(null, etCustomerName.text.toString(),
                             etCustomerPhone.text.toString(),
-                            null, null, null, imgProfileName, null, roomId)
+                            null, null, null, imgProfileName, DateUtils.toSimpleDateString(Date()), roomId, 1)
 
                     if (db.createHolder(holder) != null) {
                         for (partner in partners) {
-                            val partner = com.axonactive.myroom.db.model.Holder(null, partner.fullName,
-                                    partner.phoneNumber, partner.idCard, partner.birthday, null, null, null, roomId)
-                            if (db.createHolder(partner) == null) {
-                                Toast.makeText(this, String.format(resources.getString(R.string.created_partner_unsuccessfully), partner.fullName), Toast.LENGTH_LONG).show()
+                            val partnerDb = com.axonactive.myroom.db.model.Holder(null, partner.fullName,
+                                    partner.phoneNumber, partner.idCard, partner.birthday, null, partner.imageName, DateUtils.toSimpleDateString(Date()), roomId, partner.isOwner!!)
+                            if (db.createHolder(partnerDb) == null) {
+                                Toasty.error(this, String.format(resources.getString(R.string.created_partner_unsuccessfully), partner.fullName), Toast.LENGTH_SHORT, true).show()
                                 break
                             }
                         }
-                        Toast.makeText(this, String.format(resources.getString(R.string.created_room_successful), etRoomName.text.toString()), Toast.LENGTH_LONG).show()
-                        finish()
                     }
+                    //Create default attribute for room
+                    val attributeInDb = db.getAllAttributes()
+                    for (i in attributeInDb.indices) {
+                        if (db.createRoomAttribute(roomId, i.toLong() + 1, "0") == null) {
+                            Toasty.error(this, String.format(resources.getString(R.string.created_attribute_unsuccessfully), attributeInDb[i].name), Toast.LENGTH_SHORT, true).show()
+                        }
+                    }
+                    Toasty.success(this, String.format(resources.getString(R.string.created_room_successful), etRoomName.text.toString(), Toast.LENGTH_SHORT, true)).show()
+                    finish()
                 }
 
 
@@ -169,6 +181,12 @@ class SignUpActivity : AppCompatActivity() {
         val builder : AlertDialog.Builder = AlertDialog.Builder(this)
         builder.setView(gridView)
         builder.setTitle("Select profile image")
+        var view : View = LayoutInflater.from(this).inflate(R.layout.dialog_header_with_switch, null)
+        var title : TextView = view.findViewById(R.id.textView5)
+        var switch : SwitchCompat = view.findViewById(R.id.editable)
+        switch.visibility = View.GONE
+        title.text = "Select profile image"
+        builder.setCustomTitle(view)
         builder.setNeutralButton("Cancel", DialogInterface.OnClickListener() {dialog, _ ->
             dialog.cancel()
         })
@@ -207,34 +225,15 @@ class SignUpActivity : AppCompatActivity() {
         return result
     }
 
-//    private fun showBirthdayModifierDialog() {
-//        val builder : AlertDialog.Builder = AlertDialog.Builder(this)
-//
-//        builder.setView(R.layout.birthday_setting_dialog)
-//        builder.setCancelable(false)
-//        builder.setTitle("Update birthday")
-//        builder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialogInterface, _ ->
-//            dialogInterface.dismiss()
-//        })
-//        builder.setPositiveButton("Update", null)
-//
-//        val dialog : Dialog = builder.create()
-//        dialog.setOnShowListener { _ ->
-//            etCustomerBirthday = dialog.findViewById(R.id.id_customer_birthday)
-//            val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-//            button.text = resources.getString(R.string.accept)
-//            button.setOnClickListener { _: View? ->
-//                if (Validator.validateBirthday(etCustomerBirthday, this ,Constants.DATE_REGEX, "Invalid birthday format!")) {
-//                    birthday = etCustomerBirthday.text.toString()
-//                    dialog.dismiss()
-//                }
-//            }
-//        }
-//        dialog.show()
-//    }
-
     private fun addMoreSelection() {
-        val btnAddMore : Button = findViewById(R.id.btn_add_partner_id)
+
+        var btnAddMoreInEmptyList = findViewById<Button>(R.id.btn_add_partner_empty_list)
+        if (partners.isEmpty()) {
+            btnAddMoreInEmptyList.setOnClickListener { _ ->
+                showPartnerSettingDialog()
+            }
+            btnAddMore.visibility = View.GONE
+        }
         btnAddMore.setOnClickListener { _ ->
             showPartnerSettingDialog()
         }
@@ -242,7 +241,12 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun showPartnerSettingDialog() {
         val builder : AlertDialog.Builder = AlertDialog.Builder(this)
-        builder.setTitle("Add partner")
+        var view : View = LayoutInflater.from(this).inflate(R.layout.dialog_header_with_switch, null)
+        var title : TextView = view.findViewById(R.id.textView5)
+        var switch : SwitchCompat = view.findViewById(R.id.editable)
+        switch.visibility = View.GONE
+        title.text = "Add partner"
+        builder.setCustomTitle(view)
         builder.setCancelable(false)
         builder.setView(R.layout.partners_setting_dialog)
         builder.setNegativeButton(resources.getString(R.string.cancel), DialogInterface.OnClickListener { dialogInterface, _ ->
@@ -257,6 +261,8 @@ class SignUpActivity : AppCompatActivity() {
             etPartnerIdCard = dialog.findViewById(R.id.partner_card_id)
             etPartnerBirthday = dialog.findViewById(R.id.partner_birthday_id)
             partnerProfileImg = dialog.findViewById(R.id.partner_profile_image)
+            partnerProfileImageName = "ic_placeholder"
+            var isOwner : AppCompatCheckBox = dialog.findViewById(R.id.isOwner)
             val clickListener : View.OnClickListener = View.OnClickListener { view ->
                 if (view == partnerProfileImg) {
                     val imm : InputMethodManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -272,20 +278,28 @@ class SignUpActivity : AppCompatActivity() {
                 if (!Validator.isEmpty(etPartnerName,this) && !Validator.isEmpty(etPartnerPhone, this)) {
                     var birthdate : String? = null
                     if (etPartnerBirthday.text.isNotBlank()) {
-                        if (!Validator.validateBirthday(etPartnerBirthday, this, Constants.DATE_REGEX, resources.getString(R.string.invalid_birthday))) {
+                        if (Validator.validateBirthday(etPartnerBirthday, this, Constants.DATE_REGEX, resources.getString(R.string.invalid_birthday))) {
                             birthdate = etPartnerBirthday.text.toString()
                         }
                     }
-                    val partner = RoomHolder(null,
-                            etPartnerName.text.toString(),
-                            etPartnerPhone.text.toString(),
-                            partnerProfileImageName,
-                            DateUtils.toSimpleDate(birthdate),
-                            etPartnerIdCard.text.toString())
-                    partners.add(partner)
-                    Toast.makeText(this, "Added partner successfully!", Toast.LENGTH_SHORT).show()
-                    rv_holder_partner_list.adapter.notifyDataSetChanged()
-                    dialog.dismiss()
+                    if (etPartnerBirthday.error == null) {
+                        var isOwnerInt = 0
+                        if (isOwner.isChecked) {
+                            isOwnerInt = 1
+                        }
+                        val partner = RoomHolder(null,
+                                etPartnerName.text.toString(),
+                                etPartnerPhone.text.toString(),
+                                partnerProfileImageName,
+                                DateUtils.toSimpleDate(birthdate),
+                                etPartnerIdCard.text.toString(),
+                                isOwnerInt)
+                        partners.add(partner)
+                        Toasty.success(this, "Added partner successfully!", Toast.LENGTH_SHORT, true).show()
+                        rv_holder_partner_list.adapter.notifyDataSetChanged()
+                        btnAddMore.visibility = View.VISIBLE
+                        dialog.dismiss()
+                    }
                 }
             }
         }

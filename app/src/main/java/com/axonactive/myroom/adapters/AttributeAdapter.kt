@@ -3,22 +3,25 @@ package com.axonactive.myroom.adapters
 import android.app.Dialog
 import android.support.v7.app.AlertDialog
 import android.content.Context
-import android.support.v4.content.ContextCompat
+import android.support.v7.widget.AppCompatRadioButton
+import android.support.v7.widget.SwitchCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.axonactive.myroom.R
-import com.axonactive.myroom.core.Constants
+import com.axonactive.myroom.db.DatabaseHelper
 import com.axonactive.myroom.models.RoomAttribute
-import com.axonactive.myroom.validation.Validator
 import com.rengwuxian.materialedittext.MaterialEditText
+import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.room_attribute_item.view.*
 
 /**
  * Created by Phuong Nguyen on 6/3/2018.
  */
-class AttributeAdapter(private val context: Context, private val attributes : ArrayList<RoomAttribute>) : BaseAdapter() {
+class AttributeAdapter(private val context: Context, private val roomAttributes : RoomAttribute) : BaseAdapter() {
+
+    private val db = DatabaseHelper(context)
 
     override fun getView(position: Int, convertView: View?, parentView: ViewGroup?): View {
         val grid: View
@@ -26,11 +29,10 @@ class AttributeAdapter(private val context: Context, private val attributes : Ar
         if (convertView == null) {
             grid = inflater.inflate(R.layout.room_attribute_item, null)
             val viewHolder = ViewHolder(grid)
-            viewHolder.imgView.setImageResource(context.resources.getIdentifier(attributes[position].iconStr, "drawable", context.packageName))
-            viewHolder.tvTitle.text = attributes[position].title
+            viewHolder.imgView.setImageResource(context.resources.getIdentifier(roomAttributes.attributes[position].icon, "drawable", context.packageName))
+            viewHolder.tvTitle.text = roomAttributes.attributes[position].name
             viewHolder.aaView.setOnClickListener { _ ->
-                val title = viewHolder.tvTitle.text.toString()
-                showDialogWithCustomView(title)
+                showDialogWithCustomView(roomAttributes.roomId, roomAttributes.attributes[position].attributeId!!)
             }
 
         } else {
@@ -39,32 +41,62 @@ class AttributeAdapter(private val context: Context, private val attributes : Ar
         return grid
     }
 
-    private fun showDialogWithCustomView(title : String) {
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle(title)
-        builder.setView(R.layout.room_attribute_setting_view)
-        builder.setNegativeButton(context.resources.getString(R.string.cancel), null)
-        builder.setPositiveButton(context.resources.getString(R.string.update), null)
-        val dialog : Dialog = builder.create()
-        dialog.setOnShowListener { _ ->
-            val etAttrValue : MaterialEditText = dialog.findViewById(R.id.id_attribute_value)
-            val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-            button.text = context.resources.getString(R.string.accept)
-            button.setOnClickListener { _: View? ->
-                val resultString : String = title + " - " + etAttrValue.text.toString()
-                Toast.makeText(context, resultString, Toast.LENGTH_LONG).show()
-                dialog.dismiss()
+    private fun showDialogWithCustomView(roomId: Long, attrId : Long) {
+        val roomAttr = db.getRoomAttribute(roomId, attrId)
+        if (roomAttr!!.room != null && roomAttr!!.attribute != null) {
+            val builder = AlertDialog.Builder(context)
+            var view : View = LayoutInflater.from(context).inflate(R.layout.dialog_header_with_switch, null)
+            var tvTitle : TextView = view.findViewById(R.id.textView5)
+            var switch : SwitchCompat = view.findViewById(R.id.editable)
+            switch.visibility = View.GONE
+            tvTitle.text = roomAttr.attribute!!.name
+            builder.setCustomTitle(view)
+            var viewBody : View = View.inflate(context, R.layout.room_attribute_setting_view, null)
+            var rdoGroup = viewBody.findViewById<RadioGroup>(R.id.unit_group)
+            rdoGroup.weightSum = 1f
+            var rprms : RadioGroup.LayoutParams
+            var unitsInDb = db.getAllUnits()
+            for (i in unitsInDb.indices) {
+                var radioBtn = AppCompatRadioButton(context)
+                radioBtn.text = unitsInDb[i].unitName
+                radioBtn.id = unitsInDb[i].unitId!!.toInt()
+                radioBtn.textSize = 10f
+                rprms = RadioGroup.LayoutParams(RadioGroup.LayoutParams.WRAP_CONTENT, RadioGroup.LayoutParams.WRAP_CONTENT)
+                rprms.weight = 0.25f
+                rdoGroup.addView(radioBtn, rprms)
             }
+            builder.setView(viewBody)
+            builder.setNegativeButton(context.resources.getString(R.string.cancel), null)
+            builder.setPositiveButton(context.resources.getString(R.string.update), null)
+            val dialog : Dialog = builder.create()
+            dialog.setOnShowListener { _ ->
+                val etAttrValue : MaterialEditText = dialog.findViewById(R.id.id_attribute_value)
+                val button : Button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+                button.text = context.resources.getString(R.string.accept)
+                etAttrValue.setText(roomAttr.value)
+                val rdoGroup  = dialog.findViewById<RadioGroup>(R.id.unit_group)
+                var checkedId : Int = 0
+                rdoGroup!!.setOnCheckedChangeListener { _, i ->
+                    checkedId = rdoGroup.getChildAt(i).id
+                }
+                button.setOnClickListener { view : View? ->
+                    val resultString : String = roomAttr.attribute!!.name+ " - " + etAttrValue.text.toString() +
+                            " - " + checkedId
+                    Toasty.info(context, resultString, Toast.LENGTH_SHORT, true).show()
+                    dialog.dismiss()
+                }
+            }
+            dialog.show()
         }
-        dialog.show()
+
     }
 
     override fun getCount(): Int {
-        return attributes.size
+        return roomAttributes.attributes.size
     }
 
     override fun getItem(p0: Int): Any {
-        return attributes[p0]
+        return roomAttributes.attributes[p0]
     }
 
     override fun getItemId(p0: Int): Long {

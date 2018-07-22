@@ -6,11 +6,11 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.axonactive.myroom.db.model.Holder
-import com.axonactive.myroom.db.model.Room
+import com.axonactive.myroom.db.model.*
+import com.axonactive.myroom.db.model.Unit
 import com.axonactive.myroom.utils.DateUtils
-import com.axonactive.myroom.utils.RoomStatus
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
@@ -19,19 +19,85 @@ import java.util.*
 class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelper.DB_NAME, null, DatabaseHelper.DB_VERSION) {
 
     override fun onCreate(db: SQLiteDatabase) {
-        createTable(db, TABLE_HOLDER, listOf(FULL_NAME, PHONE_NUMER, BIRTHDAY, ID_CARD, ADDRESS, PROFILE_IMAGE, ROOM_ID)
-                                    , listOf(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INTEGER))
+        createTable(db, TABLE_HOLDER, listOf(FULL_NAME, PHONE_NUMER, BIRTHDAY, ID_CARD, ADDRESS, PROFILE_IMAGE, ROOM_ID, IS_OWNER)
+                                    , listOf(TEXT, TEXT, TEXT, TEXT, TEXT, TEXT, INTEGER, INTEGER)
+                                    , true)
         createTable(db, TABLE_ROOM, listOf(ROOM_NAME, PAYMENT_STATUS),
-                                    listOf(TEXT, TEXT))
+                                    listOf(TEXT, TEXT),
+                                    true)
+        createTable(db, TABLE_ATTRIBUTE, listOf(ATTRIBUTE_NAME, ATTRIBUTE_UNIT, ATTRIBUTE_ICON)
+                                            , listOf(TEXT, INTEGER, TEXT), true)
+        createTable(db, TABLE_UNIT, listOf(UNIT_NAME)
+                                    , listOf(TEXT), true)
+
+        createTable(db, TABLE_ROOM_ATTRIBUTE, listOf("room_id", "attribute_id", "value")
+                                            , listOf(INTEGER, INTEGER, TEXT), true)
+
+        //Insert default value
+        insertUnitTable(db)
+        insertAttributeTable(db)
     }
 
-    private fun createTable(db: SQLiteDatabase, tableName: String, headers : List<String>, headerTypes : List<String>)
+    private fun insertUnitTable(db: SQLiteDatabase) {
+        val values = ArrayList<ContentValues>()
+        var contentValues = ContentValues()
+        contentValues.put(UNIT_NAME, "kW")
+        var contentValues1 = ContentValues()
+        contentValues1.put(UNIT_NAME, "person")
+        var contentValues2 = ContentValues()
+        contentValues2.put(UNIT_NAME, "month")
+        var contentValues3 = ContentValues()
+        contentValues3.put(UNIT_NAME, "m\u00B3")
+        values.add(contentValues)
+        values.add(contentValues1)
+        values.add(contentValues2)
+        values.add(contentValues3)
+        for (value in values) {
+            db.insert(TABLE_UNIT, null, value)
+        }
+    }
+
+    private fun insertAttributeTable(db: SQLiteDatabase) {
+        val values = ArrayList<ContentValues>()
+        var contentValues = ContentValues()
+        contentValues.put(ATTRIBUTE_NAME, "Electricity")
+        contentValues.put(ATTRIBUTE_UNIT, 1)
+        contentValues.put(ATTRIBUTE_ICON, "ic_electric_red")
+        var contentValues1 = ContentValues()
+        contentValues1.put(ATTRIBUTE_NAME, "Water")
+        contentValues1.put(ATTRIBUTE_UNIT, 2)
+        contentValues1.put(ATTRIBUTE_ICON, "ic_water_drop_red")
+        var contentValues2 = ContentValues()
+        contentValues2.put(ATTRIBUTE_NAME, "Internet")
+        contentValues2.put(ATTRIBUTE_UNIT, 3)
+        contentValues2.put(ATTRIBUTE_ICON, "ic_wifi_red")
+        var contentValues3 = ContentValues()
+        contentValues3.put(ATTRIBUTE_NAME, "Cab")
+        contentValues3.put(ATTRIBUTE_UNIT, 3)
+        contentValues3.put(ATTRIBUTE_ICON, "ic_television_red")
+        var contentValues4 = ContentValues()
+        contentValues4.put(ATTRIBUTE_NAME, "Parking")
+        contentValues4.put(ATTRIBUTE_UNIT, 3)
+        contentValues4.put(ATTRIBUTE_ICON, "ic_parked_car_red")
+        values.add(contentValues)
+        values.add(contentValues1)
+        values.add(contentValues2)
+        values.add(contentValues3)
+        values.add(contentValues4)
+        for (value in values) {
+            db.insert(TABLE_ATTRIBUTE, null, value)
+        }
+    }
+
+    private fun createTable(db: SQLiteDatabase, tableName: String, headers : List<String>, headerTypes : List<String>, isIncludeIdCol: Boolean)
     {
         val builder = StringBuilder("CREATE TABLE ")
         if (!isInitializeDB) {
             builder.append(" IF NOT EXISTS ")
         }
-        builder.append(tableName).append("(").append(DatabaseHelper.ID).append(" INTEGER PRIMARY KEY,")
+        if (isIncludeIdCol) {
+            builder.append(tableName).append("(").append(DatabaseHelper.ID).append(" INTEGER PRIMARY KEY,")
+        }
         for (i in headers.indices) {
             builder.append(headers[i]).append(" ").append(headerTypes[i]).append(",")
         }
@@ -61,7 +127,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         values.put(PROFILE_IMAGE, holder.profileImage)
         values.put(CREATED_AT, DateUtils.toSimpleDateString(Date()))
         values.put(ROOM_ID, holder.roomId)
-
+        values.put(IS_OWNER, holder.isOwner)
         return db.insert(TABLE_HOLDER, null, values)
     }
 
@@ -84,7 +150,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
                     cursor.getString(cursor.getColumnIndex(ADDRESS)),
                     cursor.getString(cursor.getColumnIndex(PROFILE_IMAGE)),
                     cursor.getString(cursor.getColumnIndex(CREATED_AT)),
-                    cursor.getLong(cursor.getColumnIndex(ROOM_ID)))
+                    cursor.getLong(cursor.getColumnIndex(ROOM_ID)),
+                    cursor.getInt(cursor.getColumnIndex(IS_OWNER)))
     }
 
     fun getHolderByRoomId(roomId : Long?) : List<Holder> {
@@ -105,7 +172,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
                         c.getString(c.getColumnIndex(ADDRESS)),
                         c.getString(c.getColumnIndex(PROFILE_IMAGE)),
                         c.getString(c.getColumnIndex(CREATED_AT)),
-                        c.getLong(c.getColumnIndex(ROOM_ID)))
+                        c.getLong(c.getColumnIndex(ROOM_ID)),
+                        c.getInt(c.getColumnIndex(IS_OWNER)))
                 result.add(holder)
             } while (c.moveToNext())
         }
@@ -130,7 +198,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
                         c.getString(c.getColumnIndex(ADDRESS)),
                         c.getString(c.getColumnIndex(PROFILE_IMAGE)),
                         c.getString(c.getColumnIndex(CREATED_AT)),
-                        c.getLong(c.getColumnIndex(ROOM_ID)))
+                        c.getLong(c.getColumnIndex(ROOM_ID)),
+                        c.getInt(c.getColumnIndex(IS_OWNER)))
                 result.add(holder)
             } while (c.moveToNext())
         }
@@ -148,6 +217,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         values.put(ADDRESS, holder.address)
         values.put(PROFILE_IMAGE, holder.profileImage)
         values.put(ROOM_ID, holder.roomId)
+        values.put(IS_OWNER, holder.isOwner)
 
         return db.update(TABLE_HOLDER, values, ID + " = ?", arrayOf(holder.holderId.toString()))
     }
@@ -155,6 +225,11 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
     fun deleteHolder(holderId : Long) {
         val db : SQLiteDatabase = this.writableDatabase
         db.delete(TABLE_HOLDER, ID + " = ?", arrayOf(holderId.toString()))
+    }
+
+    fun deleteHoldersByRoomId(roomId: Long) : Int{
+        val db : SQLiteDatabase = this.writableDatabase
+        return db.delete(TABLE_HOLDER, ROOM_ID + " = ?", arrayOf(roomId.toString()))
     }
 
     //----------------------------------------ROOM - CRUD -------------------------------------//
@@ -214,9 +289,149 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         return db.update(TABLE_ROOM, values, ID + " = ?", arrayOf(room.roomId.toString()))
     }
 
-    fun deleteRoom(roomId : Long) {
+    fun deleteRoom(roomId : Long) : Int {
         val db : SQLiteDatabase = this.writableDatabase
-        db.delete(TABLE_ROOM, ID + " = ?", arrayOf(roomId.toString()))
+        return db.delete(TABLE_ROOM, ID + " = ?", arrayOf(roomId.toString()))
+    }
+
+    /*----------------------------------- UNIT - CRUD --------------------------------------*/
+    fun getAllUnits() : List<Unit> {
+        val result : ArrayList<Unit> = ArrayList<Unit>()
+        val selectAllQuery = "SELECT * FROM " + TABLE_UNIT
+        Log.e(LOG, selectAllQuery)
+
+        val db : SQLiteDatabase = this.writableDatabase
+        val c : Cursor = db.rawQuery(selectAllQuery, null)
+
+        if (c.moveToFirst()) {
+            do {
+                val unit = Unit(c.getLong(c.getColumnIndex(ID)),
+                        c.getString(c.getColumnIndex(UNIT_NAME)))
+                result.add(unit)
+            } while (c.moveToNext())
+        }
+        return result
+    }
+
+    /*-----------------------------------  ATTRIBUTE - CRUD ------------------------------*/
+    fun getAllAttributes() : List<Attribute> {
+        val result : ArrayList<Attribute> = ArrayList<Attribute>()
+        val selectAllQuery = "SELECT * FROM " + TABLE_ATTRIBUTE
+        Log.e(LOG, selectAllQuery)
+
+        val db : SQLiteDatabase = this.writableDatabase
+        val c : Cursor = db.rawQuery(selectAllQuery, null)
+
+        if (c.moveToFirst()) {
+            do {
+                val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
+                                        c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
+                                        c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
+                                        c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
+                result.add(attr)
+            } while (c.moveToNext())
+        }
+        return result
+    }
+
+    fun getAttributeById(id: Long) : Attribute? {
+        val selectAllQuery = "SELECT * FROM " + TABLE_ATTRIBUTE + " WHERE ID = " + id
+        Log.e(LOG, selectAllQuery)
+
+        val db : SQLiteDatabase = this.writableDatabase
+        val c : Cursor = db.rawQuery(selectAllQuery, null)
+
+        if (c.moveToFirst()) {
+            val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
+                    c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
+                    c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
+                    c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
+            return attr
+        }
+        return null
+    }
+
+    /*------------------------------------- ROOM ATTRIBUTE - CRUD ---------------------------*/
+    fun createRoomAttribute(roomId: Long, attributeId: Long, value : String?) : Long {
+        val db : SQLiteDatabase = this.writableDatabase
+        val values = ContentValues()
+        values.put("room_id", roomId)
+        values.put("attribute_id", attributeId)
+        if (value != null) {
+            values.put("value", value)
+        }
+        values.put(CREATED_AT, DateUtils.toSimpleDateString(Date()))
+        return db.insert(TABLE_ROOM_ATTRIBUTE, null, values)
+    }
+
+    fun getRoomAttribute(roomId: Long, attributeId: Long?) : RoomAttribute? {
+        val db : SQLiteDatabase = this.writableDatabase
+
+        val selectQuery = "SELECT * FROM " + TABLE_ROOM_ATTRIBUTE + " WHERE room_id = " + roomId + " AND attribute_id = " + attributeId
+
+        Log.e(LOG, selectQuery)
+
+        val c : Cursor = db.rawQuery(selectQuery, null)
+        if (c.moveToFirst()) {
+            val attr = RoomAttribute(this.getRoom(c.getLong(c.getColumnIndex("room_id"))),
+                    this.getAttributeById(c.getLong(c.getColumnIndex("attribute_id"))),
+                    c.getString(c.getColumnIndex("value")))
+            return attr
+        }
+        return null
+    }
+    fun getRoomAttributeByRoomId(roomId: Long) : List<Attribute> {
+        val db : SQLiteDatabase = this.writableDatabase
+        var result = ArrayList<Attribute>()
+
+        val selectQuery = "SELECT * FROM " + TABLE_ROOM_ATTRIBUTE + " WHERE room_id = " + roomId
+
+        Log.e(LOG, selectQuery)
+
+        val c : Cursor = db.rawQuery(selectQuery, null)
+        if (c.moveToFirst()) {
+            do {
+                val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
+                        c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
+                        c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
+                        c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
+                result.add(attr)
+            } while (c.moveToNext())
+        }
+        return result
+    }
+
+    fun deleteRoomAttribute(roomId: Long, attributeId: Long?) : Int {
+        val db : SQLiteDatabase = this.writableDatabase
+        var whereClause = StringBuilder()
+        var ids = ArrayList<String>()
+        whereClause.append("room_id = ?")
+        ids.add(roomId.toString())
+        if (attributeId != null) {
+            whereClause.append("attribute_id = ?")
+            ids.add(attributeId.toString())
+        }
+        return db.delete(TABLE_ROOM_ATTRIBUTE, whereClause.toString(), ids.toTypedArray())
+    }
+
+    fun updateRoomAttribute(roomId: Long, attributeId: Long, newValue : String) : Int {
+        val db : SQLiteDatabase = this.writableDatabase
+        val values = ContentValues()
+        values.put("room_id", roomId)
+        values.put("attribute_id", attributeId)
+        values.put("value", newValue)
+        values.put(CREATED_AT, DateUtils.toSimpleDateString(Date()))
+
+        var whereClause = StringBuilder()
+        var ids = ArrayList<String>()
+        whereClause.append("room_id = ?")
+        ids.add(roomId.toString())
+        if (attributeId != null) {
+            whereClause.append("attribute_id = ?")
+            ids.add(attributeId.toString())
+        }
+
+        return db.update(TABLE_ROOM_ATTRIBUTE, values ,whereClause.toString(), ids.toTypedArray())
     }
 
     companion object {
@@ -229,6 +444,9 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         //TABLE NAME
         private val TABLE_HOLDER = "holder"
         private val TABLE_ROOM = "room"
+        private val TABLE_ATTRIBUTE = "attribute"
+        private val TABLE_UNIT = "unit"
+        private val TABLE_ROOM_ATTRIBUTE = "room_attribute"
 
         //DB TYPE
         private val TEXT = "TEXT"
@@ -246,10 +464,19 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         private val ADDRESS = "address"
         private val PROFILE_IMAGE = "profile_image"
         private val ROOM_ID = "room_id"
+        private val IS_OWNER = "is_owner"
 
         //Room TABLE - column name
         private val ROOM_NAME = "room_name"
         private val PAYMENT_STATUS = "payment_status"
+
+        //Room Attribute TABLE - column name
+        private val ATTRIBUTE_NAME = "attribute_name"
+        private val ATTRIBUTE_UNIT = "unit"
+        private val ATTRIBUTE_ICON = "icon"
+
+        //Unit TABLE - column name
+        private val UNIT_NAME = "unit_name"
     }
 
 }

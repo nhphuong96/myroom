@@ -37,6 +37,7 @@
         android:layout_marginStart="25dp"/>
 
     <RadioGroup
+        android:id="@+id/unit_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -47,33 +48,33 @@
         android:layout_marginStart="25dp">
 
 
-        <android.support.v7.widget.AppCompatRadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".25"
-            android:textSize="10dp"
-            android:text="kW"/>
+        <!--<android.support.v7.widget.AppCompatRadioButton-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight=".25"-->
+            <!--android:textSize="10dp"-->
+            <!--android:text="kW"/>-->
 
-        <android.support.v7.widget.AppCompatRadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".25"
-            android:textSize="10dp"
-            android:text="person"/>
+        <!--<android.support.v7.widget.AppCompatRadioButton-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight=".25"-->
+            <!--android:textSize="10dp"-->
+            <!--android:text="person"/>-->
 
-        <android.support.v7.widget.AppCompatRadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".25"
-            android:textSize="10dp"
-            android:text="month"/>
+        <!--<android.support.v7.widget.AppCompatRadioButton-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight=".25"-->
+            <!--android:textSize="10dp"-->
+            <!--android:text="month"/>-->
 
-        <android.support.v7.widget.AppCompatRadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight=".25"
-            android:textSize="10dp"
-            android:text="m\u00B3" />
+        <!--<android.support.v7.widget.AppCompatRadioButton-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight=".25"-->
+            <!--android:textSize="10dp"-->
+            <!--android:text="m\u00B3" />-->
 
     </RadioGroup>
 </LinearLayout>

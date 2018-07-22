@@ -10,7 +10,8 @@ data class RoomHolder(var holderId : Long?,
                       var phoneNumber: String,
                       var imageName : String?,
                       var birthday : Date?,
-                      var idCard : String?)
+                      var idCard : String?,
+                      var isOwner : Int?)
 {
 
 }

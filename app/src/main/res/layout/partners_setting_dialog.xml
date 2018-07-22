@@ -98,4 +98,15 @@
         app:met_helperText="02/07/1964"
         app:met_helperTextAlwaysShown="true"/>
 
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/isOwner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_marginStart="8dp"
+        android:text="mark as Owner"
+        android:textSize="10sp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true" />
+
 </RelativeLayout>
