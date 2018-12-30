@@ -40,6 +40,8 @@
     <string name="have_not_paid">Have not paid yet</string>
     <string name="paid">Already paid for bill</string>
     <string name="holders_count">%1$d people</string>
+    <string name="bill_detail">%1$d people x %2$d VNĐ = %3$d VNĐ</string>
+    <string name="month_detail">%1$d VNĐ</string>
 
     <!-- Validation error -->
     <string name="invalid_birthday">Invalid birthday format!</string>
@@ -51,6 +53,12 @@
     <string name="deleted_room_failed">Error occurred while deleting room \'%1$s\'</string>
     <string name="created_partner_unsuccessfully">Cannot create partner \'%1$s\'</string>
     <string name="created_attribute_unsuccessfully">Cannot create attribute \'%1$s\'</string>
+    <string name="updated_attribute_successfully">Updated \'%1$s\' price: %2$s apply for each: %3$s</string>
+    <string name="updated_attribute_unsuccessfylly">Error occurred while updating \'%1$s\' price</string>
+
+    <!-- Currency-->
+    <string name="viet_name_dong">VNĐ</string>
+    <string name="vnd_placeholder">%1$d VNĐ</string>
 </resources>
 
 

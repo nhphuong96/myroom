@@ -143,7 +143,7 @@ class SignUpActivity : AppCompatActivity() {
                     //Create default attribute for room
                     val attributeInDb = db.getAllAttributes()
                     for (i in attributeInDb.indices) {
-                        if (db.createRoomAttribute(roomId, i.toLong() + 1, "0") == null) {
+                        if (db.createRoomAttribute(roomId, i.toLong() + 1, "0", 1) == null) {
                             Toasty.error(this, String.format(resources.getString(R.string.created_attribute_unsuccessfully), attributeInDb[i].name), Toast.LENGTH_SHORT, true).show()
                         }
                     }

@@ -25,13 +25,13 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         createTable(db, TABLE_ROOM, listOf(ROOM_NAME, PAYMENT_STATUS),
                                     listOf(TEXT, TEXT),
                                     true)
-        createTable(db, TABLE_ATTRIBUTE, listOf(ATTRIBUTE_NAME, ATTRIBUTE_UNIT, ATTRIBUTE_ICON)
-                                            , listOf(TEXT, INTEGER, TEXT), true)
+        createTable(db, TABLE_ATTRIBUTE, listOf(ATTRIBUTE_NAME, ATTRIBUTE_ICON)
+                                            , listOf(TEXT, TEXT), true)
         createTable(db, TABLE_UNIT, listOf(UNIT_NAME)
                                     , listOf(TEXT), true)
 
-        createTable(db, TABLE_ROOM_ATTRIBUTE, listOf("room_id", "attribute_id", "value")
-                                            , listOf(INTEGER, INTEGER, TEXT), true)
+        createTable(db, TABLE_ROOM_ATTRIBUTE, listOf("room_id", "attribute_id", "unit_id" , "value")
+                                            , listOf(INTEGER, INTEGER, INTEGER, TEXT), true)
 
         //Insert default value
         insertUnitTable(db)
@@ -61,23 +61,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         val values = ArrayList<ContentValues>()
         var contentValues = ContentValues()
         contentValues.put(ATTRIBUTE_NAME, "Electricity")
-        contentValues.put(ATTRIBUTE_UNIT, 1)
         contentValues.put(ATTRIBUTE_ICON, "ic_electric_red")
         var contentValues1 = ContentValues()
         contentValues1.put(ATTRIBUTE_NAME, "Water")
-        contentValues1.put(ATTRIBUTE_UNIT, 2)
         contentValues1.put(ATTRIBUTE_ICON, "ic_water_drop_red")
         var contentValues2 = ContentValues()
         contentValues2.put(ATTRIBUTE_NAME, "Internet")
-        contentValues2.put(ATTRIBUTE_UNIT, 3)
         contentValues2.put(ATTRIBUTE_ICON, "ic_wifi_red")
         var contentValues3 = ContentValues()
         contentValues3.put(ATTRIBUTE_NAME, "Cab")
-        contentValues3.put(ATTRIBUTE_UNIT, 3)
         contentValues3.put(ATTRIBUTE_ICON, "ic_television_red")
         var contentValues4 = ContentValues()
         contentValues4.put(ATTRIBUTE_NAME, "Parking")
-        contentValues4.put(ATTRIBUTE_UNIT, 3)
         contentValues4.put(ATTRIBUTE_ICON, "ic_parked_car_red")
         values.add(contentValues)
         values.add(contentValues1)
@@ -313,6 +308,20 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         return result
     }
 
+    fun getUnitById(unitId : Long) : Unit? {
+        val selectQuery = "SELECT * FROM " + TABLE_UNIT + " WHERE " + ID + " = " + unitId
+        Log.e(LOG, selectQuery)
+
+        val db : SQLiteDatabase = this.writableDatabase
+        val c : Cursor = db.rawQuery(selectQuery, null)
+
+        if (c.moveToFirst()) {
+            return Unit(c.getLong(c.getColumnIndex(ID)),
+                    c.getString(c.getColumnIndex(UNIT_NAME)))
+        }
+        return null
+    }
+
     /*-----------------------------------  ATTRIBUTE - CRUD ------------------------------*/
     fun getAllAttributes() : List<Attribute> {
         val result : ArrayList<Attribute> = ArrayList<Attribute>()
@@ -326,7 +335,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
             do {
                 val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
                                         c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
-                                        c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
                                         c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
                 result.add(attr)
             } while (c.moveToNext())
@@ -344,7 +352,6 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         if (c.moveToFirst()) {
             val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
                     c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
-                    c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
                     c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
             return attr
         }
@@ -352,11 +359,12 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
     }
 
     /*------------------------------------- ROOM ATTRIBUTE - CRUD ---------------------------*/
-    fun createRoomAttribute(roomId: Long, attributeId: Long, value : String?) : Long {
+    fun createRoomAttribute(roomId: Long, attributeId: Long, value : String?, unitId : Long) : Long {
         val db : SQLiteDatabase = this.writableDatabase
         val values = ContentValues()
         values.put("room_id", roomId)
         values.put("attribute_id", attributeId)
+        values.put("unit_id", unitId)
         if (value != null) {
             values.put("value", value)
         }
@@ -375,6 +383,7 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         if (c.moveToFirst()) {
             val attr = RoomAttribute(this.getRoom(c.getLong(c.getColumnIndex("room_id"))),
                     this.getAttributeById(c.getLong(c.getColumnIndex("attribute_id"))),
+                    this.getUnitById(c.getLong(c.getColumnIndex("unit_id"))),
                     c.getString(c.getColumnIndex("value")))
             return attr
         }
@@ -391,11 +400,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         val c : Cursor = db.rawQuery(selectQuery, null)
         if (c.moveToFirst()) {
             do {
-                val attr = Attribute(c.getLong(c.getColumnIndex(ID)),
-                        c.getString(c.getColumnIndex(ATTRIBUTE_NAME)),
-                        c.getInt(c.getColumnIndex(ATTRIBUTE_UNIT)),
-                        c.getString(c.getColumnIndex(ATTRIBUTE_ICON)))
-                result.add(attr)
+                val attr = this.getAttributeById(c.getLong(c.getColumnIndex("attribute_id")))
+                result.add(attr!!)
             } while (c.moveToNext())
         }
         return result
@@ -414,20 +420,18 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DatabaseHelpe
         return db.delete(TABLE_ROOM_ATTRIBUTE, whereClause.toString(), ids.toTypedArray())
     }
 
-    fun updateRoomAttribute(roomId: Long, attributeId: Long, newValue : String) : Int {
+    fun updateRoomAttribute(roomId: Long, attributeId: Long, newValue : String, newUnit: Long) : Int {
         val db : SQLiteDatabase = this.writableDatabase
         val values = ContentValues()
-        values.put("room_id", roomId)
-        values.put("attribute_id", attributeId)
+        values.put("unit_id", newUnit)
         values.put("value", newValue)
-        values.put(CREATED_AT, DateUtils.toSimpleDateString(Date()))
 
         var whereClause = StringBuilder()
         var ids = ArrayList<String>()
         whereClause.append("room_id = ?")
         ids.add(roomId.toString())
         if (attributeId != null) {
-            whereClause.append("attribute_id = ?")
+            whereClause.append(" and attribute_id = ?")
             ids.add(attributeId.toString())
         }
 

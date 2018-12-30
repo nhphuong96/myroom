@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="waterLastIndex" type="id" />
+    <item name="waterCurrentIndex" type="id" />
+    <item name="electricityLastIndex" type="id" />
+    <item name="electricityCurrentIndex" type="id" />
+</resources>
